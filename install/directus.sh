@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo 'Installing Directus'
 cd /usr/local/lib
 
 DIRECTUS_APP_PATH=/usr/local/lib/directus-app
@@ -16,6 +15,12 @@ ADMIN_EMAIL=${ADMIN_EMAIL:-email@example.com}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-$(openssl rand -base64 48 | tr -d "=+/" | cut -c1-64)}
 DIRECTUS_APP_KEY=$(uuidgen)
 DIRECTUS_APP_SECRET=$(openssl rand -base64 48 | tr -d "=+/" | cut -c1-64)
+
+if [[ -f $DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env ]]
+then
+  echo The Project already exist.
+  exit -1
+fi
 
 if [[ ! -f "$DIRECTUS_APP_PATH/package.json" ]]
 then
