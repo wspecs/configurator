@@ -17,7 +17,7 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-$(openssl rand -base64 48 | tr -d "=+/" | cut -
 DIRECTUS_APP_KEY=$(uuidgen)
 DIRECTUS_APP_SECRET=$(openssl rand -base64 48 | tr -d "=+/" | cut -c1-64)
 
-if [[ ! -f "$DIRECTUS_APP_PATH/package.json" ]] || [[ -v UPDATE ]]
+if [[ ! -f "$DIRECTUS_APP_PATH/package.json" || -v UPDATE ]]
 then
   cd /usr/local/lib
   echo 'Creating directus project'
