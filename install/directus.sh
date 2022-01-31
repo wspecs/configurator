@@ -16,12 +16,6 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-$(openssl rand -base64 48 | tr -d "=+/" | cut -
 DIRECTUS_APP_KEY=$(uuidgen)
 DIRECTUS_APP_SECRET=$(openssl rand -base64 48 | tr -d "=+/" | cut -c1-64)
 
-if [[ -f $DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env ]]
-then
-  echo The Project already exist.
-  exit -1
-fi
-
 if [[ ! -f "$DIRECTUS_APP_PATH/package.json" ]]
 then
   cd /usr/local/lib
@@ -36,6 +30,12 @@ cd $DIRECTUS_APP_PATH
 sed -i "s#permissions.flat()#lodash_1.flatten(permissions)#g" ./node_modules/directus/dist/utils/merge-permissions.js
 sed -i "s|dotenv_1.default.config()|dotenv_1.default.config({path: process.env.DOTENV_CONFIG_PATH})|g" ./node_modules/directus/dist/env.js 
 sed -i "s#dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../', '.env') })#dotenv_1.default.config({ path: process.env.DOTENV_CONFIG_PATH || path_1.default.resolve(__dirname, '../../', '.env') })#g" ./node_modules/directus/dist/database/index.js
+
+if [[ -f $DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env ]]
+then
+  echo The Project already exist.
+  exit -1
+fi
 
 if [[ ! -f $DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env ]]
 then
