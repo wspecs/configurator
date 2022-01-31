@@ -32,7 +32,7 @@ sed -i "s#permissions.flat()#lodash_1.flatten(permissions)#g" ./node_modules/dir
 sed -i "s|dotenv_1.default.config()|dotenv_1.default.config({path: process.env.DOTENV_CONFIG_PATH})|g" ./node_modules/directus/dist/env.js 
 sed -i "s#dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../', '.env') })#dotenv_1.default.config({ path: process.env.DOTENV_CONFIG_PATH || path_1.default.resolve(__dirname, '../../', '.env') })#g" ./node_modules/directus/dist/database/index.js
 
-if echo $* | grep -e "--UPDATE" -q
+if [[ -v UPDATE ]];
 then
   echo Updated
   exit 0
