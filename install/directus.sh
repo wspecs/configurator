@@ -7,6 +7,7 @@ PROJECT_FILE_NAME=$(echo $PROJECT | sed "s/-/_/g")
 PORT=${PORT:-8055}
 DB_CLIENT=${DB_CLIENT:-mysql}
 DB_HOST=${DB_HOST:-127.0.0.1}
+DIRECTUS_VERSION=${DIRECTUS_VERSION:-9.0.0-rc.37}
 DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-directus_$PROJECT_FILE_NAME}
 DB_USER=${DB_USER:-directus_user_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)}
@@ -22,7 +23,7 @@ then
   echo 'Creating directus project'
   mkdir directus-app && cd directus-app
   npm init -y
-  npm install directus@9.0.0-rc.37
+  npm install directus@$DIRECTUS_VERSION
 fi
 
 # Update files to read from custom configs
