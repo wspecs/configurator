@@ -7,7 +7,7 @@ PROJECT_FILE_NAME=$(echo $PROJECT | sed "s/-/_/g")
 PORT=${PORT:-8055}
 DB_CLIENT=${DB_CLIENT:-mysql}
 DB_HOST=${DB_HOST:-127.0.0.1}
-DIRECTUS_VERSION=${DIRECTUS_VERSION:-9.5.0}
+DIRECTUS_VERSION=${DIRECTUS_VERSION:-9.4.2}
 DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-directus_$PROJECT_FILE_NAME}
 DB_USER=${DB_USER:-directus_user_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)}
@@ -17,13 +17,16 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-$(openssl rand -base64 48 | tr -d "=+/" | cut -
 DIRECTUS_APP_KEY=$(uuidgen)
 DIRECTUS_APP_SECRET=$(openssl rand -base64 48 | tr -d "=+/" | cut -c1-64)
 
-if [[ ! -f "$DIRECTUS_APP_PATH/package.json" || -v UPDATE ]]
+if [[ ! -f "$DIRECTUS_APP_PATH/node_modules/directus/package.json" ]]
 then
-  cd /usr/local/lib
-  echo 'Creating directus project'
-  mkdir directus-app && cd directus-app
-  npm init -y
-  npm install directus@$DIRECTUS_VERSION
+  echo "*** Missing the base project from directus. ***"
+  echo "Follow steps to install https://docs.directus.io/getting-started/installation/manual/"
+  echo
+  echo "============================================================="
+  echo "cd $DIRECTUS_APP_PATH"
+  echo "npm install directus@9.5.0  # or at the selection version"
+  echo "============================================================="
+  exit 1
 fi
 
 # Update files to read from custom configs
@@ -31,12 +34,6 @@ cd $DIRECTUS_APP_PATH
 sed -i "s#permissions.flat()#lodash_1.flatten(permissions)#g" ./node_modules/directus/dist/utils/merge-permissions.js
 sed -i "s|dotenv_1.default.config()|dotenv_1.default.config({path: process.env.DOTENV_CONFIG_PATH})|g" ./node_modules/directus/dist/env.js 
 sed -i "s#dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../', '.env') })#dotenv_1.default.config({ path: process.env.DOTENV_CONFIG_PATH || path_1.default.resolve(__dirname, '../../', '.env') })#g" ./node_modules/directus/dist/database/index.js
-
-if [[ -v UPDATE ]];
-then
-  echo Updated
-  exit 0
-fi
 
 if [[ -f $DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env ]]
 then
@@ -141,9 +138,10 @@ Description=directus service for $PROJECT
 After=network.target
 
 [Service]
-Environment=DOTENV_CONFIG_PATH=$DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env
+Environment=CONFIG_PATH=$DIRECTUS_APP_PATH/config/$PROJECT_FILE_NAME.env
 WorkingDirectory=$DIRECTUS_APP_PATH
 ExecStart=/usr/bin/npx directus start
+MemoryLimit=64M
 Restart=on-failure
 
 [Install]
